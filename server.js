@@ -4,6 +4,7 @@ import usersRouter from './routes/users.js';
 import { initDb } from './database.js';
 import loginRouter from './routes/login.js';
 import taskRouter from './routes/task.js';
+import profileRouter from './routes/profile.js';
 
 const app = express();
 const PORT = 8080;
@@ -19,6 +20,7 @@ app.use(express.json());
 app.use('/users', usersRouter);
 app.use('/login', loginRouter);
 app.use('/tasks', taskRouter);
+app.use('/profile', profileRouter)
 
 // Start the server
 app.listen(PORT, () => {
