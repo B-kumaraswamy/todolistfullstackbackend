@@ -21,19 +21,20 @@ export const initDb = () => {
           console.error('Error creating users table:', err.message);
         } else {
           console.log('Users table ready.');
-          printTableSchema();
         }
       });
-    }
-  });
-};
 
-const printTableSchema = () => {
-  db.all("PRAGMA table_info(users)", [], (err, rows) => {
-    if (err) {
-      console.error('Error retrieving table schema:', err.message);
-    } else {
-      console.log('Users table schema:', rows);
+      db.run(`CREATE TABLE IF NOT EXISTS tasks (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        status TEXT CHECK(status IN ('open', 'in progress', 'completed')) NOT NULL
+      )`, (err) => {
+        if (err) {
+          console.error('Error creating tasks table:', err.message);
+        } else {
+          console.log('Tasks table ready.');
+        }
+      });
     }
   });
 };

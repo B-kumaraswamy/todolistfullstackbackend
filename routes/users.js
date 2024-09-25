@@ -1,4 +1,5 @@
 import express from 'express';
+import bcrypt from 'bcrypt';
 import { getDb } from '../database.js';
 
 const router = express.Router();
@@ -17,22 +18,30 @@ router.get('/', (req, res) => {
 });
 
 // Endpoint to add a new user
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
   const db = getDb();
   const { username, email, password, phoneNumber, gender } = req.body;
-  db.run(
-    `INSERT INTO users (username, email, password, phoneNumber, gender) VALUES (?, ?, ?, ?, ?)`,
-    [username, email, password, phoneNumber, gender],
-    function(err) {
-      if (err) {
-        console.error('Error inserting user:', err.message);
-        res.status(400).json({ error: err.message });
-        return;
+
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    db.run(
+      `INSERT INTO users (username, email, password, phoneNumber, gender) VALUES (?, ?, ?, ?, ?)`,
+      [username, email, hashedPassword, phoneNumber, gender],
+      function(err) {
+        if (err) {
+          console.error('Error inserting user:', err.message);
+          res.status(400).json({ error: err.message });
+          return;
+        }
+        console.log('User added successfully:', { userId: this.lastID });
+        res.json({ userId: this.lastID });
       }
-      console.log('User added successfully:', { userId: this.lastID });
-      res.json({ userId: this.lastID });
-    }
-  );
+    );
+  } catch (error) {
+    console.error('Error hashing password:', error.message);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 export default router;
